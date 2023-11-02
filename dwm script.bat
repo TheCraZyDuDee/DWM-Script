@@ -38,7 +38,7 @@ goto check
 :check
 echo.
 echo Check for PSSuspend...
-if exist "%~dp0\Tools\PSSuspend\pssuspend.exe" goto dwm_check
+if exist "%~dp0\Tools\PSSuspend\pssuspend.exe" goto check_dwm
 cls
 echo.
 echo Disabling DWM requires the Tool PSSuspend, do you want do download it now?
