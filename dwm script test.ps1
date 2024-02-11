@@ -1,3 +1,4 @@
+#Silly Script made by crusty & OpenAI's GPT-3
 # Configuration
 $LogPath = "$PSScriptRoot\dwm_script_log.txt"
 $PsSuspendPath = "$PSScriptRoot\Tools\PSSuspend\PsSuspend.exe"
@@ -129,20 +130,42 @@ function Enable-DWM {
     }
 }
 
+# Function to open Task Manager
+function Open-TaskManager {
+    try {
+        Start-Process -FilePath "taskmgr.exe"
+        Log-Message "Task Manager opened"
+        return $true
+    }
+    catch {
+        Log-Message "Failed to open Task Manager: $_"
+        return $false
+    }
+}
+
 # Main script
 try {
     # Display GUI
     Add-Type -AssemblyName System.Windows.Forms
     $form = New-Object System.Windows.Forms.Form
     $form.Text = "DWM Script"
-    $form.Size = New-Object System.Drawing.Size(300,150)
+    $form.Size = New-Object System.Drawing.Size(300,200)
     $form.StartPosition = "CenterScreen"
     $form.FormBorderStyle = 'FixedDialog'
     $form.BackColor = [System.Drawing.ColorTranslator]::FromHtml("#00245c")  # Set background color
 
+    # Welcome message
+    $welcomeLabel = New-Object System.Windows.Forms.Label
+    $welcomeLabel.Location = New-Object System.Drawing.Point(20,20)
+    $welcomeLabel.Size = New-Object System.Drawing.Size(260,20)
+    $welcomeLabel.Text = "Welcome, $($env:USERNAME)!"
+    $welcomeLabel.ForeColor = [System.Drawing.Color]::White
+    $form.Controls.Add($welcomeLabel)
+
+    # Disable DWM button
     $disableButton = New-Object System.Windows.Forms.Button
-    $disableButton.Location = New-Object System.Drawing.Point(50,50)
-    $disableButton.Size = New-Object System.Drawing.Size(100,50)
+    $disableButton.Location = New-Object System.Drawing.Point(30,60)
+    $disableButton.Size = New-Object System.Drawing.Size(100,30)
     $disableButton.Text = "Disable DWM"
     $disableButton.BackColor = [System.Drawing.Color]::White
     $disableButton.Add_Click({ 
@@ -152,10 +175,12 @@ try {
             [System.Windows.Forms.MessageBox]::Show("Failed to disable DWM", "Error", "OK", "Error")
         }
     })
+    $form.Controls.Add($disableButton)
 
+    # Enable DWM button
     $enableButton = New-Object System.Windows.Forms.Button
-    $enableButton.Location = New-Object System.Drawing.Point(150,50)
-    $enableButton.Size = New-Object System.Drawing.Size(100,50)
+    $enableButton.Location = New-Object System.Drawing.Point(150,60)
+    $enableButton.Size = New-Object System.Drawing.Size(100,30)
     $enableButton.Text = "Enable DWM"
     $enableButton.BackColor = [System.Drawing.Color]::White
     $enableButton.Add_Click({ 
@@ -165,9 +190,23 @@ try {
             [System.Windows.Forms.MessageBox]::Show("Failed to enable DWM", "Error", "OK", "Error")
         }
     })
-
-    $form.Controls.Add($disableButton)
     $form.Controls.Add($enableButton)
+
+    # Open Task Manager button
+    $taskManagerButton = New-Object System.Windows.Forms.Button
+    $taskManagerButton.Location = New-Object System.Drawing.Point(90,110)
+    $taskManagerButton.Size = New-Object System.Drawing.Size(120,30)
+    $taskManagerButton.Text = "Open Task Manager"
+    $taskManagerButton.BackColor = [System.Drawing.Color]::White
+    $taskManagerButton.Add_Click({ 
+        if (Open-TaskManager) {
+            [System.Windows.Forms.MessageBox]::Show("Task Manager opened successfully", "Success", "OK", "Information")
+        } else {
+            [System.Windows.Forms.MessageBox]::Show("Failed to open Task Manager", "Error", "OK", "Error")
+        }
+    })
+    $form.Controls.Add($taskManagerButton)
+
     $form.ShowDialog() | Out-Null
 }
 catch {
