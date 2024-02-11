@@ -143,6 +143,19 @@ function Open-TaskManager {
     }
 }
 
+# Function to open GitHub link
+function Open-GitHubLink {
+    try {
+        Start-Process -FilePath "https://github.com/crustySenpai/DWM-Script"
+        Log-Message "GitHub link opened"
+        return $true
+    }
+    catch {
+        Log-Message "Failed to open GitHub link: $_"
+        return $false
+    }
+}
+
 # Main script
 try {
     # Display GUI
@@ -154,9 +167,20 @@ try {
     $form.FormBorderStyle = 'FixedDialog'
     $form.BackColor = [System.Drawing.ColorTranslator]::FromHtml("#00245c")  # Set background color
 
+    # GitHub button
+    $githubButton = New-Object System.Windows.Forms.Button
+    $githubButton.Location = New-Object System.Drawing.Point(150,120)
+    $githubButton.Size = New-Object System.Drawing.Size(100,30)
+    $githubButton.Text = "Github Page"
+    $githubButton.BackColor = [System.Drawing.Color]::White
+    $githubButton.Add_Click({ 
+        Open-GitHubLink
+    })
+    $form.Controls.Add($githubButton)
+
     # Welcome message
     $welcomeLabel = New-Object System.Windows.Forms.Label
-    $welcomeLabel.Location = New-Object System.Drawing.Point(20,20)
+    $welcomeLabel.Location = New-Object System.Drawing.Point(20,40)
     $welcomeLabel.Size = New-Object System.Drawing.Size(260,20)
     $welcomeLabel.Text = "Welcome, $($env:USERNAME)!"
     $welcomeLabel.ForeColor = [System.Drawing.Color]::White
@@ -164,7 +188,7 @@ try {
 
     # Disable DWM button
     $disableButton = New-Object System.Windows.Forms.Button
-    $disableButton.Location = New-Object System.Drawing.Point(30,60)
+    $disableButton.Location = New-Object System.Drawing.Point(30,70)
     $disableButton.Size = New-Object System.Drawing.Size(100,30)
     $disableButton.Text = "Disable DWM"
     $disableButton.BackColor = [System.Drawing.Color]::White
@@ -179,7 +203,7 @@ try {
 
     # Enable DWM button
     $enableButton = New-Object System.Windows.Forms.Button
-    $enableButton.Location = New-Object System.Drawing.Point(150,60)
+    $enableButton.Location = New-Object System.Drawing.Point(150,70)
     $enableButton.Size = New-Object System.Drawing.Size(100,30)
     $enableButton.Text = "Enable DWM"
     $enableButton.BackColor = [System.Drawing.Color]::White
@@ -194,17 +218,14 @@ try {
 
     # Open Task Manager button
     $taskManagerButton = New-Object System.Windows.Forms.Button
-    $taskManagerButton.Location = New-Object System.Drawing.Point(90,110)
-    $taskManagerButton.Size = New-Object System.Drawing.Size(120,30)
-    $taskManagerButton.Text = "Open Task Manager"
+    $taskManagerButton.Location = New-Object System.Drawing.Point(30,120)
+    $taskManagerButton.Size = New-Object System.Drawing.Size(100,30)
+    $taskManagerButton.Text = "Task Manager"
     $taskManagerButton.BackColor = [System.Drawing.Color]::White
     $taskManagerButton.Add_Click({ 
-        if (Open-TaskManager) {
-            [System.Windows.Forms.MessageBox]::Show("Task Manager opened successfully", "Success", "OK", "Information")
-        } else {
-            [System.Windows.Forms.MessageBox]::Show("Failed to open Task Manager", "Error", "OK", "Error")
-        }
+        Open-TaskManager
     })
+
     $form.Controls.Add($taskManagerButton)
 
     $form.ShowDialog() | Out-Null
