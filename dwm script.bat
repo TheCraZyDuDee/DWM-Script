@@ -7,28 +7,23 @@ MSHTA "javascript: var shell = new ActiveXObject('shell.application'); shell.She
 exit /b
 
 :winver
-cls
-for /f "tokens=4-6 delims=. " %%i in ('ver') do set VERSION1=%%i.%%j.%%k
-if "%version1%" == "10.0.22000" goto start
-if "%version1%" == "10.0.22621" goto start
-for /f "tokens=4-5 delims=. " %%i in ('ver') do set VERSION2=%%i.%%j
-if "%version2%" == "10.0" goto start
-goto not_supported
+:: checking if the build number is higher than 19045 to see if it's 11 and less than 10240 for any os before 10
+for /f "tokens=4-6 delims=. " %%i in ('ver') do set VERSION=%%i%%j%%k
+if "%version%" GTR "10019045" (goto not_supported) else (set osver=Windows 10 - Supported)
+if "%version%" LSS "10010240" goto not_supported
 
 :start
 cls
 color 1f
 echo.
-echo    /////////////////////////////////
-echo   //  crustySenpai's DWM Script  //
-echo  /////////////////////////////////
+echo    //////////////////////////////
+echo   //  CraZyDuDe's DWM Script  //
+echo  //////////////////////////////
 echo.
 echo Standalone Script to disable the Desktop Window Manager
-if "%version1%" == "10.0.22000" echo Current Windows Version: 11 (Supported)
-if "%version1%" == "10.0.22621" echo Current Windows Version: 11 (Supported)
-if "%version2%" == "10.0" echo Current Windows Version: 10 (Supported)
 echo.
-echo Welcome %username%!
+echo Current OS: %osver%
+echo Welcome %username%.
 echo.
 echo Press any Key to start...
 echo.
@@ -100,6 +95,7 @@ taskkill /F /IM "SearchApp.exe"
 taskkill /F /IM "TextInputHost.exe"
 taskkill /F /IM "StartMenuExperienceHost.exe"
 taskkill /F /IM "ShellExperienceHost.exe"
+cls
 echo.
 echo Done!
 echo.
@@ -113,4 +109,4 @@ echo.
 echo Your current Windows Version isn't supported!
 echo Please press any Key to continue...
 pause >nul
-goto exit
+exit
