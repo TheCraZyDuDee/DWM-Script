@@ -1,20 +1,20 @@
 @echo off
 title DWM Script
 
+:: requesting admin permissions
 echo Requesting Admin Permissions...
-net session >nul 2>&1 && goto :winver
-MSHTA "javascript: var shell = new ActiveXObject('shell.application'); shell.ShellExecute('%~nx0', '', '', 'runas', 1);close();"
-exit /b
+if not "%1"=="am_admin" (powershell start -verb runas '%0' am_admin & exit /b)
 
-:winver
 :: checking if the build number is higher than 19045 to see if it's 11 and less than 10240 for any os before 10
+:winver
 for /f "tokens=4-6 delims=. " %%i in ('ver') do set VERSION=%%i%%j%%k
 if "%version%" GTR "10019045" (goto not_supported) else (set osver=Windows 10 - Supported)
 if "%version%" LSS "10010240" goto not_supported
 
 :start
-cls
 color 1f
+cd %~dp0
+cls
 echo.
 echo    //////////////////////////////
 echo   //  CraZyDuDe's DWM Script  //
@@ -28,66 +28,33 @@ echo.
 echo Press any Key to start...
 echo.
 pause >nul
-goto check
 
-:check
-echo.
-echo Check for PSSuspend...
-if exist "%~dp0\Tools\PSSuspend\pssuspend.exe" goto check_dwm
+:: check for pssuspend and if not found download it via BitsTransfer
 cls
-echo.
-echo Disabling DWM requires the Tool PSSuspend, do you want do download it now?
-echo.
-echo 0 = No / 1 = Yes
-echo.
-goto dwm_check_choice
-
-:dwm_check_choice
-set /p c=Select your Option: 
-if "%c%"=="test" goto test_menu
-if "%c%"=="0" cls & exit
-if "%c%"=="1" goto dwm_download
-if "%c%" GTR "1" dwm_check_choice
-
-:dwm_download
-cls
-echo.
-echo Downloading PSSuspend...
-cd %~dp0
-mkdir Tools\PSSuspend
+if exist "%~dp0\Tools\PSSuspend\pssuspend.exe" goto check
+echo PSSuspend not found, downloading...
+md Tools\PSSuspend
 powershell -Command "Start-BitsTransfer "https://live.sysinternals.com/pssuspend.exe" "Tools\PSSuspend""
-cd C:\Windows\System32
-cls
-echo.
-echo PSSuspend downloaded successfully!
-goto check_dwm
 
-:check_dwm
-cls
-echo.
-echo Checking if dwm is running
+:: check for dwm running
+:check
 tasklist|find "dwm.exe" >nul
 if %errorlevel% == 0 goto disable
-goto enable
 
+:: resume winlogon and start explorer to enable dwm
 :enable
 cls
-echo.
-echo Enable DWM...
-"%~dp0\Tools\PSSuspend\pssuspend.exe" -r winlogon.exe -nobanner >nul
-start explorer.exe
-start "" /D "C:\Program Files (x86)\Steam\steamapps\common\wallpaper_engine" "wallpaper32.exe"
-echo Done!
+"Tools\PSSuspend\pssuspend.exe" -r winlogon.exe -nobanner >nul
+start explorer
+echo DWM enabled!
 echo.
 echo You may now close the window or press any Key to disable DWM...
 pause >nul
-goto disable
 
+:: freeze winlogon and then kill all nessesary tasks to disable dwm
 :disable
 cls
-echo.
-echo Disable DWM...
-"%~dp0\Tools\PSSuspend\pssuspend.exe" winlogon.exe -nobanner
+"Tools\PSSuspend\pssuspend.exe" winlogon.exe -nobanner
 taskkill /F /IM "wallpaper32.exe"
 taskkill /F /IM "explorer.exe"
 taskkill /F /IM "dwm.exe"
@@ -97,12 +64,13 @@ taskkill /F /IM "StartMenuExperienceHost.exe"
 taskkill /F /IM "ShellExperienceHost.exe"
 cls
 echo.
-echo Done!
+echo DWM disabled!
 echo.
 echo Press any Key to enable DWM...
 pause >nul
 goto enable
 
+:: prompts the user to exit since they are either below or above windows 10
 :not_supported
 cls
 echo.
